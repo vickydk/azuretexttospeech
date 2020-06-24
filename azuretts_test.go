@@ -9,18 +9,17 @@ import (
 )
 
 func TestVoiceXML(t *testing.T) {
-	expect := "<speak version='1.0' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='Microsoft Server Speech Text to Speech Voice (en-US, ZiraRUS)'>Microsoft Speech Service Text-to-Speech API</voice></speak>"
+	expect := "<speak version='1.0' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='es-MX-DaliaNeural'>Microsoft Speech Service Text-to-Speech API</voice></speak>"
 	gender := Female
 	region := EnUS
-	description := localeToGender[localeGender{region, gender}]
-	assert.Equal(t, expect, voiceXML("Microsoft Speech Service Text-to-Speech API", description, region, gender))
+	assert.Equal(t, expect, voiceXML("Microsoft Speech Service Text-to-Speech API", "es-MX-DaliaNeural", region, gender))
 }
 
 func TestSynthesize(t *testing.T) {
 	az := &AzureCSTextToSpeech{SubscriptionKey: "SYS64738", accessToken: "SYS49152"}
 
 	// payload should be nil and err should be true, since DeCH + Female is not a valid combination
-	payload, err := az.Synthesize("test-speech", DeCH, Female, RIFF8Bit8kHzMonoPCM)
+	payload, err := az.Synthesize("test-speech", DeCH, "es-MX-DaliaNeural", Female, RIFF8Bit8kHzMonoPCM)
 	assert.Error(t, err, "should raise an error")
 	assert.Nil(t, payload, "payload should be nil")
 
@@ -31,7 +30,7 @@ func TestSynthesize(t *testing.T) {
 	)
 	defer ts.Close()
 	az.APIBase = ts.URL
-	payload, err = az.Synthesize("SYS4096", EnUS, Female, RIFF8Bit8kHzMonoPCM)
+	payload, err = az.Synthesize("SYS4096", EnUS, "es-MX-DaliaNeural", Female, RIFF8Bit8kHzMonoPCM)
 	assert.NoError(t, err)
 	assert.Equal(t, payload, []byte("SYS4096"))
 }

@@ -50,29 +50,20 @@ const (
 	WestEuropeToken    TokenRefreshAPI = "https://westeurope.api.cognitive.microsoft.com/sts/v1.0/issueToken"
 )
 
-// serviceNameMappingString is a text placeholder that is present in the standard voices service name mapping. This is
-// used to build the `name` attribute in the ssml/xml payload (see `voiceXML()`).
-const serviceNameMappingString = "Microsoft Server Speech Text to Speech Voice"
-
 // voiceXML renders the XML payload for the TTS api.
 // For API reference see https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/rest-apis#sample-request-1
-func voiceXML(speechText, description string, locale Region, gender Gender) string {
-
-	return fmt.Sprintf(`<speak version='1.0' xml:lang='%s'><voice xml:lang='%s' xml:gender='%s' name='%s %s'>%s</voice></speak>`,
-		locale, locale, gender, serviceNameMappingString, description, speechText)
+func voiceXML(speechText, voiceName string, locale Region, gender Gender) string {
+	return fmt.Sprintf(`<speak version='1.0' xml:lang='%s'><voice xml:lang='%s' xml:gender='%s' name='%s'>%s</voice></speak>`,
+		locale, locale, gender, voiceName, speechText)
 }
 
 // Synthesize returns a bytestream of the rendered text-to-speech in the target audio format. `speechText` is the string of
 // text in which a user wishes to Synthesize, `region` is the language/locale, `gender` is the desired output voice
 // and `audioOutput` captures the audio format.
-func (az *AzureCSTextToSpeech) Synthesize(speechText string, region Region, gender Gender, audioOutput AudioOutput) ([]byte, error) {
-
-	descriprtion, ok := localeToGender[localeGender{region, gender}]
-	if !ok {
-		return nil, fmt.Errorf("unable to locale region=%s, gender=%s pair", region, gender)
-	}
-
-	v := voiceXML(speechText, descriprtion, region, gender)
+//
+// List of possible voices here - https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support
+func (az *AzureCSTextToSpeech) Synthesize(speechText string, region Region, voiceName string, gender Gender, audioOutput AudioOutput) ([]byte, error) {
+	v := voiceXML(speechText, voiceName, region, gender)
 	request, err := http.NewRequest(http.MethodPost, az.APIBase, bytes.NewBufferString(v))
 	if err != nil {
 		return nil, err
@@ -152,7 +143,6 @@ type AzureCSTextToSpeech struct {
 
 // New returns an `AzureCSTextToSpeech` object and starts a background token refresh timer
 func New(subscriptionKey string, api TextToSpeechAPI, token TokenRefreshAPI) (*AzureCSTextToSpeech, error) {
-
 	az := &AzureCSTextToSpeech{
 		APIBase:         string(api) + v1Path,
 		SubscriptionKey: subscriptionKey,
