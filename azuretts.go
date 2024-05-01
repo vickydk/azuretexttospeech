@@ -53,7 +53,7 @@ const (
 // voiceXML renders the XML payload for the TTS api.
 // For API reference see https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/rest-apis#sample-request-1
 func voiceXML(speechText, voiceName string, locale Region, gender Gender) string {
-	return fmt.Sprintf(`<speak version='1.0' xml:lang='%s'><voice xml:lang='%s' xml:gender='%s' name='%s'>%s</voice></speak>`,
+	return fmt.Sprintf(`<speak version='1.0' xml:lang='%s'><voice xml:lang='%s' xml:gender='%s' name='%s' leadingsilence-exact='0ms' tailingsilence-exact='0ms'>%s</voice></speak>`,
 		locale, locale, gender, voiceName, speechText)
 }
 
